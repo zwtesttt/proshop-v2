@@ -112,6 +112,10 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
       email_address: req.body.payer.email_address,
     };
 
+    //更新购买量
+    // const product = await Product.findById(order.orderItems.product) 
+    console.log("order.orderItems.product");
+
     const updatedOrder = await order.save();
 
     res.json(updatedOrder);

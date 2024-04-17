@@ -29,15 +29,15 @@ const getProducts = asyncHandler(async (req, res) => {
 // @route   GET /api/products/:id
 // @access  Public
 const getProductById = asyncHandler(async (req, res) => {
-  // NOTE: checking for valid ObjectId to prevent CastError moved to separate
-  // middleware. See README for more info.
-
   const product = await Product.findById(req.params.id);
+
   if (product) {
+    // Increment views count by 1
+    product.views += 1;
+    // Save the updated product
+    await product.save();
     return res.json(product);
   } else {
-    // NOTE: this will run if a valid ObjectId but no product was found
-    // i.e. product may be null
     res.status(404);
     throw new Error('Product not found');
   }
@@ -57,6 +57,8 @@ const createProduct = asyncHandler(async (req, res) => {
     countInStock: 0,
     numReviews: 0,
     description: 'Sample description',
+    purchases: 0,
+    views: 0,
   });
 
   const createdProduct = await product.save();
@@ -67,7 +69,7 @@ const createProduct = asyncHandler(async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = asyncHandler(async (req, res) => {
-  const { name, price, description, image, brand, category, countInStock } =
+  const { name, price, description, image, brand, category, countInStock,views,purchases } =
     req.body;
 
   const product = await Product.findById(req.params.id);
@@ -80,6 +82,8 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.brand = brand;
     product.category = category;
     product.countInStock = countInStock;
+    product.views = views;
+    product.purchases = purchases;
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);
