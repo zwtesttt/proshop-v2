@@ -31,10 +31,27 @@ const ProductScreen = () => {
   const [qty, setQty] = useState(1);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [page, setPage] = useState(1); // 初始化页码为1
+  const [limit] = useState(5); // 初始化每页显示评论数量为5
+  const [pageNum,setPageNum] = useState(''); // 初始化每页显示评论数量为5
+
 
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty }));
     navigate('/cart');
+  };
+
+  const handleInputChange = (page,totalPages) => {
+    if (page > 0 ){
+      setPage(page);
+    }
+    if(page>totalPages){
+      setPage(totalPages);
+    }
+  };
+  const goToPageHandler = () => {
+    console.log("跳转页码",pageNum);
+    handleInputChange(pageNum); // 更新输入框的值状态
   };
 
   const {
@@ -42,7 +59,7 @@ const ProductScreen = () => {
     isLoading,
     refetch,
     error,
-  } = useGetProductDetailsQuery(productId);
+  } = useGetProductDetailsQuery({productId,page,limit});
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -183,6 +200,22 @@ const ProductScreen = () => {
                     <p>{review.comment}</p>
                   </ListGroup.Item>
                 ))}
+                {/* 分页按钮 */}
+                <div>
+                </div>
+                <div className="pagination">
+                  <div style={{ margin: "0 20px" }}>
+                  <span className="current-page">{page}</span>
+                <span>of</span>
+                <span className="total-pages">{product.totalPages}</span>
+                  </div>
+                  <button className="prev-page" onClick={() => handleInputChange(page - 1,product.totalPages)}>&laquo; Previous</button>
+                  <div>
+                    <input type="text" className="page-input" value={pageNum} onChange={(e) => setPageNum(e.target.value)} />
+                    <Button className="go-to-page" onClick={goToPageHandler}>Go</Button>
+                  </div>
+                  <button className="next-page" onClick={() => handleInputChange(page + 1,product.totalPages)} >Next &raquo;</button>
+                </div>
                 <ListGroup.Item>
                   <h2>Write a Customer Review</h2>
 

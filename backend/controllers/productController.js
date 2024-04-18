@@ -26,21 +26,63 @@ const getProducts = asyncHandler(async (req, res) => {
 });
 
 // @desc    Fetch single product
-// @route   GET /api/products/:id
+// @route   GET /api/products/:id/:page/:limit
 // @access  Public
-const getProductById = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id);
+// const getProductById = asyncHandler(async (req, res) => {
+//   const product = await Product.findById(req.params.id);
 
-  if (product) {
-    // Increment views count by 1
-    product.views += 1;
-    // Save the updated product
-    await product.save();
-    return res.json(product);
-  } else {
+//   if (product) {
+//     // Increment views count by 1
+//     product.views += 1;
+//     // Save the updated product
+//     await product.save();
+//     return res.json(product);
+//   } else {
+//     res.status(404);
+//     throw new Error('Product not found');
+//   }
+// });
+const getProductById = asyncHandler(async (req, res) => {
+
+  console.log('page:',req.params);
+  const { id,page = 1, limit = 5  } = req.params;
+  // const { page = 1, limit = 5 } = req.params; // 默认每页返回 5 条评论
+  // 查询特定产品
+  const product = await Product.findById(id);
+
+  if (!product) {
     res.status(404);
     throw new Error('Product not found');
   }
+  product.views += 1;
+  await product.save();
+  // 计算评论分页参数
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  // 获取产品的评论
+  const reviews = product.reviews.slice(startIndex, endIndex);
+
+  res.json({
+    _id: product._id,
+    user: product.user,
+    name: product.name,
+    image: product.image,
+    brand: product.brand,
+    category: product.category,
+    description: product.description,
+    rating: product.rating,
+    numReviews: product.numReviews,
+    price: product.price,
+    countInStock: product.countInStock,
+    views: product.views,
+    purchases: product.purchases,
+    reviews: reviews,
+    // 添加评论总数和当前页码
+    totalReviews: product.reviews.length,
+    currentPage: page,
+    totalPages: Math.ceil(product.reviews.length / limit)
+  });
 });
 
 // @desc    Create a product
@@ -117,14 +159,14 @@ const createProductReview = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
   if (product) {
-    const alreadyReviewed = product.reviews.find(
-      (r) => r.user.toString() === req.user._id.toString()
-    );
+    // const alreadyReviewed = product.reviews.find(
+    //   (r) => r.user.toString() === req.user._id.toString()
+    // );
 
-    if (alreadyReviewed) {
-      res.status(400);
-      throw new Error('Product already reviewed');
-    }
+    // if (alreadyReviewed) {
+    //   res.status(400);
+    //   throw new Error('Product already reviewed');
+    // }
 
     const review = {
       name: req.user.name,

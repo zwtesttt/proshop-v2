@@ -51,3 +51,54 @@ table th {
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
 }
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  outline: none;
+  border-radius: 5px;
+}
+
+.pagination input[type="text"] {
+  width: 50px;
+  text-align: center;
+  margin: 0 5px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.pagination .go-to-page {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.pagination button:hover,
+.pagination .go-to-page:hover {
+  background-color: #f0f0f0;
+}
+
+.pagination button.prev-page,
+.pagination button.next-page,
+.pagination .go-to-page {
+  min-width: 80px;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: #fff;
+}
