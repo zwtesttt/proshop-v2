@@ -28,25 +28,8 @@ const getProducts = asyncHandler(async (req, res) => {
 // @desc    Fetch single product
 // @route   GET /api/products/:id/:page/:limit
 // @access  Public
-// const getProductById = asyncHandler(async (req, res) => {
-//   const product = await Product.findById(req.params.id);
-
-//   if (product) {
-//     // Increment views count by 1
-//     product.views += 1;
-//     // Save the updated product
-//     await product.save();
-//     return res.json(product);
-//   } else {
-//     res.status(404);
-//     throw new Error('Product not found');
-//   }
-// });
 const getProductById = asyncHandler(async (req, res) => {
-
-  console.log('page:',req.params);
   const { id,page = 1, limit = 5  } = req.params;
-  // const { page = 1, limit = 5 } = req.params; // 默认每页返回 5 条评论
   // 查询特定产品
   const product = await Product.findById(id);
 
@@ -191,6 +174,39 @@ const createProductReview = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Delete a review from a product
+// @route   DELETE /api/products/:id/reviews/:reviewId
+// @access  Private
+const deleteReview = asyncHandler(async (req, res) => {
+  const { id, reviewId } = req.params;
+  console.log("reviewId",reviewId);
+  console.log("productId",id);
+
+  // 查找产品并确保存在
+  const product = await Product.findById(id);
+  console.log("product",id);
+  if (!product) {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+
+  // 找到要删除的评论
+  const review = product.reviews.find(review => review._id.toString() === reviewId);
+  if (!review) {
+    res.status(404);
+    throw new Error('Review not found');
+  }
+
+  // 检查当前用户是否有权限删除评论
+  // 这里可以根据具体的权限系统进行自定义
+
+  // 删除评论
+  product.reviews = product.reviews.filter(review => review._id.toString() !== reviewId);
+  await product.save();
+
+  res.json({ message: 'Review removed' });
+});
+
 // @desc    Get top rated products
 // @route   GET /api/products/top
 // @access  Public
@@ -208,4 +224,5 @@ export {
   deleteProduct,
   createProductReview,
   getTopProducts,
+  deleteReview,
 };

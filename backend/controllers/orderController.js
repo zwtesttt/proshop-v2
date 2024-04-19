@@ -117,7 +117,7 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     order.orderItems.forEach(async (element) => {
       const product = await Product.findById(element.product.toString());
       if (product) {
-        product.purchases += 1;
+        product.purchases += element.qty;
         await product.save();
       }
     });

@@ -29,7 +29,7 @@ const OrderScreen = () => {
   const [deliverOrder, { isLoading: loadingDeliver }] =
     useDeliverOrderMutation();
   
-  const [transitOrder, { isLoading: loadingTransit }] =
+  const [transitOrder] =
   useTransitOrderMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
