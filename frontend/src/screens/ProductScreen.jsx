@@ -34,7 +34,14 @@ const ProductScreen = () => {
   const [page, setPage] = useState(1); // 初始化页码为1
   const [limit] = useState(5); // 初始化每页显示评论数量为5
   const [pageNum,setPageNum] = useState(''); // 初始化每页显示评论数量为5
+  const [reviewCollapse, setReviewCollapse] = useState({}); // 折叠状态对象
 
+  const toggleCollapse = (reviewId) => {
+    setReviewCollapse({
+      ...reviewCollapse,
+      [reviewId]: !reviewCollapse[reviewId],
+    });
+  };
 
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty }));
@@ -194,10 +201,27 @@ const ProductScreen = () => {
               <ListGroup variant='flush'>
                 {product.reviews.map((review) => (
                   <ListGroup.Item key={review._id}>
-                    <strong>{review.name}</strong>
+                    {/* <strong>{review.name}</strong>
                     <Rating value={review.rating} />
                     <p>{review.createdAt.substring(0, 10)}</p>
-                    <p>{review.comment}</p>
+                    <p>{review.comment}</p> */}
+                    {reviewCollapse[review._id] ? (
+                      <>
+                        <strong>{review.name}</strong>
+                        <Rating value={review.rating} />
+                        <p>{review.createdAt.substring(0, 10)}</p>
+                        <p>{review.comment}</p>
+                        <Button variant="link" onClick={() => toggleCollapse(review._id)}>Collapse</Button>
+                      </>
+                    ) : (
+                      <>
+                        <strong>{review.name}</strong>
+                        <Rating value={review.rating} />
+                        <p>{review.createdAt.substring(0, 10)}</p>
+                        <p>{review.comment.length > 50 ? review.comment.slice(0, 50) + '...' : review.comment}</p>
+                        <Button variant="link" onClick={() => toggleCollapse(review._id)}>{review.comment.length > 50 ? 'Read More' : ''}</Button>
+                      </>
+                    )}
                   </ListGroup.Item>
                 ))}
                 {/* 分页按钮 */}

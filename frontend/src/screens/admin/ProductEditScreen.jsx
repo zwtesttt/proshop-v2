@@ -27,7 +27,7 @@ const ProductEditScreen = () => {
     isLoading,
     refetch,
     error,
-  } = useGetProductDetailsQuery(productId);
+  } = useGetProductDetailsQuery({productId,page:1,limit:5});
 
   const [updateProduct, { isLoading: loadingUpdate }] =
     useUpdateProductMutation();
