@@ -1,4 +1,5 @@
 import asyncHandler from '../middleware/asyncHandler.js';
+import {OrderStatus} from '../models/orderModel.js';
 import Order from '../models/orderModel.js';
 import Product from '../models/productModel.js';
 import { calcPrices } from '../utils/calcPrices.js';
@@ -92,15 +93,15 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
   const { verified, value } = await verifyPayPalPayment(req.body.id);
   if (!verified) throw new Error('Payment not verified');
 
+
   // check if this transaction has been used before
   const isNewTransaction = await checkIfNewTransaction(Order, req.body.id);
   if (!isNewTransaction) throw new Error('Transaction has been used before');
 
   const order = await Order.findById(req.params.id);
-
   if (order) {
     // check the correct amount was paid
-    const paidCorrectAmount = order.totalPrice.toString() === value;
+    const paidCorrectAmount = order.totalPrice.toFixed(2) === value;
     if (!paidCorrectAmount) throw new Error('Incorrect amount paid');
 
     order.isPaid = true;
@@ -111,10 +112,15 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
       update_time: req.body.update_time,
       email_address: req.body.payer.email_address,
     };
-
+    order.status = OrderStatus.PAID;
     //更新购买量
-    // const product = await Product.findById(order.orderItems.product) 
-    console.log("order.orderItems.product");
+    order.orderItems.forEach(async (element) => {
+      const product = await Product.findById(element.product.toString());
+      if (product) {
+        product.purchases += 1;
+        await product.save();
+      }
+    });
 
     const updatedOrder = await order.save();
 
@@ -134,7 +140,26 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
   if (order) {
     order.isDelivered = true;
     order.deliveredAt = Date.now();
+    order.status = OrderStatus.DELIVERED;
+    const updatedOrder = await order.save();
 
+    res.json(updatedOrder);
+  } else {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+});
+
+// @desc    Update order to delivered
+// @route   GET /api/orders/:id/transit
+// @access  Private/Admin
+const updateOrderToTransit = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+    order.isTransit = true;
+    order.transitAt = Date.now();
+    order.status = OrderStatus.IN_TRANSIT;
     const updatedOrder = await order.save();
 
     res.json(updatedOrder);
@@ -158,5 +183,6 @@ export {
   getOrderById,
   updateOrderToPaid,
   updateOrderToDelivered,
+  updateOrderToTransit,
   getOrders,
 };

@@ -27,6 +27,8 @@ const OrderListScreen = () => {
               <th>TOTAL</th>
               <th>PAID</th>
               <th>DELIVERED</th>
+              <th>TRANSIT</th>
+              <th>STATUS</th>
               <th></th>
             </tr>
           </thead>
@@ -50,6 +52,16 @@ const OrderListScreen = () => {
                   ) : (
                     <FaTimes style={{ color: 'red' }} />
                   )}
+                </td>
+                <td>
+                  {order.isTransit ? (
+                    order.transitAt.substring(0, 10)
+                  ) : (
+                    <FaTimes style={{ color: 'red' }} />
+                  )}
+                </td>
+                <td>
+                  {order.status}
                 </td>
                 <td>
                   <LinkContainer to={`/order/${order._id}`}>

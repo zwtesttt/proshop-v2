@@ -1,5 +1,12 @@
 import mongoose from 'mongoose';
 
+export const OrderStatus = {
+  NOT_PAID: 'Not Paid',
+  PAID: 'Paid',
+  IN_TRANSIT: 'In Transit',
+  DELIVERED: 'Delivered',
+};
+
 const orderSchema = mongoose.Schema(
   {
     user: {
@@ -72,6 +79,19 @@ const orderSchema = mongoose.Schema(
     deliveredAt: {
       type: Date,
     },
+    isTransit:{
+      type:Boolean,
+      required:true,
+      default:false
+    },
+    transitAt:{
+      type:Date
+    },
+    status:{
+      type:String,
+      required:true,
+      default:OrderStatus.NOT_PAID
+    }
   },
   {
     timestamps: true,

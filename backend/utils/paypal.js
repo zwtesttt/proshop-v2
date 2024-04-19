@@ -1,4 +1,6 @@
 import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+
 dotenv.config();
 const { PAYPAL_CLIENT_ID, PAYPAL_APP_SECRET, PAYPAL_API_URL } = process.env;
 

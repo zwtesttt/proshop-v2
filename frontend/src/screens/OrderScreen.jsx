@@ -11,6 +11,7 @@ import {
   useGetOrderDetailsQuery,
   useGetPaypalClientIdQuery,
   usePayOrderMutation,
+  useTransitOrderMutation,
 } from '../slices/ordersApiSlice';
 
 const OrderScreen = () => {
@@ -27,6 +28,9 @@ const OrderScreen = () => {
 
   const [deliverOrder, { isLoading: loadingDeliver }] =
     useDeliverOrderMutation();
+  
+  const [transitOrder, { isLoading: loadingTransit }] =
+  useTransitOrderMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -101,6 +105,11 @@ const OrderScreen = () => {
     refetch();
   };
 
+  const transitHandler = async () => {
+    await transitOrder(orderId);
+    refetch();
+  };
+
   return isLoading ? (
     <Loader />
   ) : error ? (
@@ -126,6 +135,13 @@ const OrderScreen = () => {
                 {order.shippingAddress.postalCode},{' '}
                 {order.shippingAddress.country}
               </p>
+              {order.isTransit ? (
+                <Message variant='success'>
+                  Transit on {order.transitAt}
+                </Message>
+              ) : (
+                <Message variant='danger'>Pending Shipment</Message>
+              )}
               {order.isDelivered ? (
                 <Message variant='success'>
                   Delivered on {order.deliveredAt}
@@ -244,6 +260,21 @@ const OrderScreen = () => {
               {userInfo &&
                 userInfo.isAdmin &&
                 order.isPaid &&
+                !order.isTransit && (
+                  <ListGroup.Item>
+                    <Button
+                      type='button'
+                      className='btn btn-block'
+                      onClick={transitHandler}
+                    >
+                      Mark As In Transit
+                    </Button>
+                  </ListGroup.Item>
+                )}
+              {userInfo &&
+                userInfo.isAdmin &&
+                order.isPaid &&
+                order.isTransit&&
                 !order.isDelivered && (
                   <ListGroup.Item>
                     <Button

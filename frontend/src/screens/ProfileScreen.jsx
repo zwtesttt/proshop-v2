@@ -121,6 +121,7 @@ const ProfileScreen = () => {
                 <th>TOTAL</th>
                 <th>PAID</th>
                 <th>DELIVERED</th>
+                <th>STATUS</th>
                 <th></th>
               </tr>
             </thead>
@@ -143,6 +144,9 @@ const ProfileScreen = () => {
                     ) : (
                       <FaTimes style={{ color: 'red' }} />
                     )}
+                  </td>
+                  <td>
+                    {order.status}
                   </td>
                   <td>
                     <LinkContainer to={`/order/${order._id}`}>
