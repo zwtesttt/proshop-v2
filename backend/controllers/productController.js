@@ -137,8 +137,8 @@ const deleteProduct = asyncHandler(async (req, res) => {
 // @route   POST /api/products/:id/reviews
 // @access  Private
 const createProductReview = asyncHandler(async (req, res) => {
-  const { rating, comment } = req.body;
-
+  const { rating, comment,name } = req.body;
+  
   const product = await Product.findById(req.params.id);
 
   if (product) {
@@ -152,11 +152,16 @@ const createProductReview = asyncHandler(async (req, res) => {
     // }
 
     const review = {
-      name: req.user.name,
+      name: name,
       rating: Number(rating),
       comment,
       user: req.user._id,
     };
+
+    if(review.name === undefined){
+      console.log("review.name",review.name);
+      review.name = req.user.name
+    }
 
     product.reviews.push(review);
 
@@ -207,6 +212,26 @@ const deleteReview = asyncHandler(async (req, res) => {
   res.json({ message: 'Review removed' });
 });
 
+// @desc    Fetch latest reviews for a product
+// @route   GET /api/products/:id/latest-reviews
+// @access  Public
+const getLatestProductReviews = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // 查询特定商品的最新评论，按时间倒序排序，选择前10条评论
+  const product = await Product.findById(id);
+  if (!product) {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+
+  const latestReviews = product.reviews
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 10);
+
+  res.json(latestReviews);
+});
+
 // @desc    Get top rated products
 // @route   GET /api/products/top
 // @access  Public
@@ -225,4 +250,5 @@ export {
   createProductReview,
   getTopProducts,
   deleteReview,
+  getLatestProductReviews,
 };
